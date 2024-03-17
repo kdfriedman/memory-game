@@ -68,6 +68,7 @@ export const Memory = () => {
     };
     const COLORS: COLORS = [RED, PURPLE, ORANGE, YELLOW, BLUE, GREEN];
 
+    // generate 4 x 3 board, assigning random colors from colors list
     for (let i = 0; i < 12; i++) {
       const matchingColor = randomlyAssignMatchingColor(
         COLORS,
@@ -98,6 +99,7 @@ export const Memory = () => {
 
   // store match in state and reset board
   const handleMatch = async () => {
+    // simulate delay to allow user to see 2nd sq selection
     setIsSleeping(true);
     await sleep(750);
     setIsSleeping(false);
@@ -141,6 +143,8 @@ export const Memory = () => {
     const selectedSqMatchingColor = e.target?.dataset?.matchingColor;
     const selectedSqIdString = e.target.dataset.id as string;
     const selectedSqId = parseInt(selectedSqIdString);
+
+    // first selection
     if (!selectionOne) {
       setMemorySquares((squares) => {
         const clonedSquares: SQUARE[] = structuredClone(squares);
@@ -158,6 +162,7 @@ export const Memory = () => {
       setSelectionOne(true);
     }
 
+    // second selection
     if (selectionOne && !selectionTwo) {
       setMemorySquares((squares) => {
         const clonedSquares: SQUARE[] = structuredClone(squares);
@@ -183,6 +188,7 @@ export const Memory = () => {
 
   return (
     <>
+    {/* show invalid selection message */}
       {invalidMatch && (
         <div
           style={{
@@ -195,6 +201,7 @@ export const Memory = () => {
           {invalidMatch}
         </div>
       )}
+      {/* show game winning message */}
       {isWinner && (
         <div
           style={{
