@@ -1,7 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Item, COLORS, MATCHING_COLOR_MAP, SQUARE } from './memoryTypes.ts';
 
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+const sortByOrder = (items: SQUARE[]) => {
+  items.sort((a: Item, b: Item) => a.sortOrder - b.sortOrder);
+  return items;
+};
+
 export const Memory = () => {
+  const [selectionOne, setSelectionOne] = useState(false);
+  const [selectionTwo, setSelectionTwo] = useState(false);
+  const [invalidMatch, setInvalidMatch] = useState('');
+  const [isWinner, setIsWinner] = useState('');
+  const [isSleeping, setIsSleeping] = useState(false);
+
+  useEffect(() => {
+    if (selectionOne && selectionTwo) {
+      const result = handleMatch();
+      result
+        .then(() => {
+          setSelectionOne(false);
+          setSelectionTwo(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setSelectionOne(false);
+          setSelectionTwo(false);
+        });
+    }
+  }, [selectionOne, selectionTwo]);
+
   // square matching colors
   const RED = 'red';
   const PURPLE = 'purple';
@@ -12,11 +41,7 @@ export const Memory = () => {
   // square default color
   const WHITE = 'white';
 
-  const sortByOrder = (items: SQUARE[]) => {
-    items.sort((a: Item, b: Item) => a.sortOrder - b.sortOrder);
-    return items;
-  };
-
+  // generate random color for squares
   const randomlyAssignMatchingColor = (
     COLORS: COLORS,
     MATCHING_COLOR_MAP: MATCHING_COLOR_MAP
@@ -30,6 +55,7 @@ export const Memory = () => {
     return randomlyAssignMatchingColor(COLORS, MATCHING_COLOR_MAP);
   };
 
+  // create squares with config data
   const generateSquares = () => {
     const squares = [];
     const MATCHING_COLOR_MAP = {
@@ -60,30 +86,7 @@ export const Memory = () => {
     return squares;
   };
   const squares = generateSquares();
-  const [selectionOne, setSelectionOne] = useState(false);
-  const [selectionTwo, setSelectionTwo] = useState(false);
   const [memorySqaures, setMemorySquares] = useState<SQUARE[]>(squares);
-  const [invalidMatch, setInvalidMatch] = useState('');
-  const [isWinner, setIsWinner] = useState('');
-  const [isSleeping, setIsSleeping] = useState(false);
-
-  useEffect(() => {
-    if (selectionOne && selectionTwo) {
-      const result = handleMatch();
-      result
-        .then(() => {
-          setSelectionOne(false);
-          setSelectionTwo(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setSelectionOne(false);
-          setSelectionTwo(false);
-        });
-    }
-  }, [selectionOne, selectionTwo]);
-
-  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   const resetTheGame = () => {
     setInvalidMatch('');
@@ -93,6 +96,7 @@ export const Memory = () => {
     setMemorySquares(() => squares);
   };
 
+  // store match in state and reset board
   const handleMatch = async () => {
     setIsSleeping(true);
     await sleep(750);
@@ -128,6 +132,7 @@ export const Memory = () => {
     });
   };
 
+  // check for first vs second sq selection
   const handleSqSelection = async (e: React.SyntheticEvent<EventTarget>) => {
     setInvalidMatch('');
     if (!(e.target instanceof HTMLElement)) {
